@@ -16,6 +16,8 @@ const ASSETS_TO_CACHE = [
   './src/utils/particles.js',
   './src/utils/prng.js',
   './src/utils/sound.js',
+  './public/icons/icon-192.png',
+  './public/icons/icon-512.png',
   './public/icons/icon-192.svg',
   './public/icons/icon-512.svg'
 ];
