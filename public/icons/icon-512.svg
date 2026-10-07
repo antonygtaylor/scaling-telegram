@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="60" fill="#121212"/>
+  <circle cx="256" cy="256" r="200" fill="#1e1e1e" stroke="#f5a623" stroke-width="12"/>
+  <!-- Tank Body -->
+  <rect x="156" y="270" width="200" height="70" rx="15" fill="#4a5568" stroke="#f5a623" stroke-width="8"/>
+  <!-- Tank Turret -->
+  <path d="M 206 270 Q 256 200 306 270 Z" fill="#2d3748" stroke="#f5a623" stroke-width="8"/>
+  <!-- Barrel -->
+  <rect x="290" y="225" width="110" height="20" rx="5" transform="rotate(-25 290 225)" fill="#e2e8f0" stroke="#f5a623" stroke-width="6"/>
+  <!-- Tank Tracks -->
+  <rect x="146" y="330" width="220" height="36" rx="18" fill="#1a202c" stroke="#718096" stroke-width="6"/>
+  <circle cx="180" cy="348" r="12" fill="#a0aec0"/>
+  <circle cx="218" cy="348" r="12" fill="#a0aec0"/>
+  <circle cx="256" cy="348" r="12" fill="#a0aec0"/>
+  <circle cx="294" cy="348" r="12" fill="#a0aec0"/>
+  <circle cx="332" cy="348" r="12" fill="#a0aec0"/>
+</svg>
