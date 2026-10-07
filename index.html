@@ -10,8 +10,8 @@
   <meta name="apple-mobile-web-app-title" content="Rust&Iron" />
   <title>The Rust & Iron Wars</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/svg+xml" href="public/icons/icon-192.svg" />
-  <link rel="apple-touch-icon" href="public/icons/icon-192.svg" />
+  <link rel="icon" type="image/png" href="public/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="public/icons/icon-192.png" />
   <link rel="stylesheet" href="src/styles/main.css" />
   <script src="src/index.js" type="module" defer></script>
 </head>
@@ -97,13 +97,20 @@
             <button id="btn-angle-up" class="btn-ctrl" aria-label="Angle Up">▶</button>
           </div>
 
-          <!-- Hold-to-Charge Fire Button -->
+          <!-- Fine Power Adjustment Buttons -->
+          <div class="control-cluster">
+            <button id="btn-power-down" class="btn-ctrl" aria-label="Power Down">◀</button>
+            <div class="ctrl-label">POWER</div>
+            <button id="btn-power-up" class="btn-ctrl" aria-label="Power Up">▶</button>
+          </div>
+
+          <!-- Hold-to-Charge / Tap Fire Button -->
           <div class="fire-cluster">
             <div id="power-meter-wrapper">
               <div id="power-meter-bar"></div>
             </div>
             <button id="btn-fire" class="btn-fire">
-              <span>HOLD TO FIRE</span>
+              <span>FIRE</span>
             </button>
           </div>
         </div>

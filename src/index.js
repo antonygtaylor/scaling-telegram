@@ -226,7 +226,7 @@ class GameApp {
     document.getElementById('btn-angle-down').addEventListener('click', () => {
       const player = this.getPlayerTank();
       if (player && this.isPlayerTurn()) {
-        player.angle = Math.max(0, player.angle - 2);
+        player.angle = Math.max(0, player.angle - 1);
         this.updateHUD();
       }
     });
@@ -234,27 +234,57 @@ class GameApp {
     document.getElementById('btn-angle-up').addEventListener('click', () => {
       const player = this.getPlayerTank();
       if (player && this.isPlayerTurn()) {
-        player.angle = Math.min(180, player.angle + 2);
+        player.angle = Math.min(180, player.angle + 1);
         this.updateHUD();
       }
     });
 
-    // Hold to charge FIRE button (touch & mouse)
+    // Power controls
+    document.getElementById('btn-power-down')?.addEventListener('click', () => {
+      const player = this.getPlayerTank();
+      if (player && this.isPlayerTurn()) {
+        player.power = Math.max(5, player.power - 5);
+        this.powerCharge = player.power;
+        this.updateHUD();
+      }
+    });
+
+    document.getElementById('btn-power-up')?.addEventListener('click', () => {
+      const player = this.getPlayerTank();
+      if (player && this.isPlayerTurn()) {
+        player.power = Math.min(100, player.power + 5);
+        this.powerCharge = player.power;
+        this.updateHUD();
+      }
+    });
+
+    // Fire button (supports both direct tap using pre-set power or holding to charge)
     const btnFire = document.getElementById('btn-fire');
+    let chargeTimer = null;
+
     const startCharge = (e) => {
       e.preventDefault();
       if (this.isPlayerTurn() && !this.activeProjectile && !this.isChargingPower) {
         this.soundEngine.init();
-        this.isChargingPower = true;
-        this.powerCharge = 10;
-        this.powerDirection = 1;
+        const player = this.getPlayerTank();
+        if (player) this.powerCharge = player.power;
+
+        // Brief delay before oscillating power so quick taps use preset power directly
+        chargeTimer = setTimeout(() => {
+          this.isChargingPower = true;
+          this.powerDirection = 1;
+        }, 150);
       }
     };
 
     const stopCharge = (e) => {
       if (e) e.preventDefault();
-      if (this.isChargingPower) {
-        this.isChargingPower = false;
+      if (chargeTimer) clearTimeout(chargeTimer);
+
+      if (this.isPlayerTurn() && !this.activeProjectile) {
+        if (this.isChargingPower) {
+          this.isChargingPower = false;
+        }
         this.firePlayerCannon();
       }
     };
@@ -785,7 +815,7 @@ class GameApp {
     if (!player) return;
 
     const rad = (player.angle * Math.PI) / 180;
-    const p = this.isChargingPower ? this.powerCharge : 50;
+    const p = this.isChargingPower ? this.powerCharge : player.power;
     const speed = p * 0.22;
 
     let vx = Math.cos(rad) * speed;
@@ -793,24 +823,43 @@ class GameApp {
     let currX = player.x;
     let currY = player.y - 10;
 
+    this.ctx.save();
     this.ctx.beginPath();
     this.ctx.moveTo(currX - this.cameraX, currY);
 
-    for (let i = 0; i < 30; i++) {
+    const maxSteps = 150;
+    for (let i = 0; i < maxSteps; i++) {
       vx += this.wind * 0.005;
       vy += 0.25;
       currX += vx;
       currY += vy;
 
       if (currX < 0 || currX > this.worldWidth || currY > this.worldHeight) break;
+
       this.ctx.lineTo(currX - this.cameraX, currY);
+
+      // Check for terrain ground collision preview termination
+      if (this.terrain && currY >= this.terrain.getHeightAt(currX)) {
+        // Draw impact marker target
+        this.ctx.strokeStyle = 'rgba(255, 235, 59, 0.7)';
+        this.ctx.setLineDash([4, 4]);
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
+
+        this.ctx.beginPath();
+        this.ctx.arc(currX - this.cameraX, currY, 6, 0, Math.PI * 2);
+        this.ctx.fillStyle = 'rgba(255, 152, 0, 0.8)';
+        this.ctx.fill();
+        this.ctx.restore();
+        return;
+      }
     }
 
-    this.ctx.strokeStyle = 'rgba(255, 235, 59, 0.5)';
+    this.ctx.strokeStyle = 'rgba(255, 235, 59, 0.7)';
     this.ctx.setLineDash([4, 4]);
     this.ctx.lineWidth = 2;
     this.ctx.stroke();
-    this.ctx.setLineDash([]);
+    this.ctx.restore();
   }
 }
 

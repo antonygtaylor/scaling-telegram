@@ -125,8 +125,12 @@ html, body {
 
 #hud-bottom {
   border-bottom: none;
-  border-top: 2px solid #333;
-  padding: 8px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px 12px;
+  background: rgba(18, 18, 18, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .hud-group {
@@ -161,11 +165,11 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: rgba(30, 30, 30, 0.9);
-  padding: 6px 12px;
+  background: rgba(25, 25, 25, 0.75);
+  padding: 4px 10px;
   border-radius: 6px;
-  border: 1px solid #444;
-  min-width: 180px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 170px;
 }
 
 .stat-row {
@@ -213,11 +217,11 @@ html, body {
 .control-cluster {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(30, 30, 30, 0.9);
-  padding: 4px 8px;
+  gap: 4px;
+  background: rgba(25, 25, 25, 0.75);
+  padding: 3px 6px;
   border-radius: 6px;
-  border: 1px solid #444;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .ctrl-label {

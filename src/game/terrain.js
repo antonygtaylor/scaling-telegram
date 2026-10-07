@@ -23,8 +23,8 @@ export class Terrain {
   }
 
   generateHeightmap() {
-    const baseHeight = this.height * 0.6;
-    const amplitude = this.height * 0.25;
+    const baseHeight = this.height * 0.50;
+    const amplitude = this.height * 0.18;
     const frequency = 0.003;
 
     for (let x = 0; x < this.width; x++) {
@@ -34,8 +34,8 @@ export class Terrain {
       // Ensure steep valleys/chasm regions for tactical play in higher levels
       let elevation = baseHeight + n * amplitude;
 
-      // Ensure left and right edges don't clip outside lower bounds
-      elevation = Math.max(this.height * 0.2, Math.min(this.height * 0.85, elevation));
+      // Ensure left and right edges don't clip outside bounds and ground level stays visible above bottom HUD
+      elevation = Math.max(this.height * 0.2, Math.min(this.height * 0.68, elevation));
 
       this.heights[x] = elevation;
     }

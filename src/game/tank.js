@@ -128,5 +128,28 @@ export class Tank {
     ctx.font = '10px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(this.name, drawX, barY - 4);
+
+    // Render offscreen / screen boundary directional indicator badge if tank is beyond horizontal viewport
+    const viewportWidth = ctx.canvas ? ctx.canvas.width / (window.devicePixelRatio || 1) : 1000;
+    if (drawX < 15 || drawX > viewportWidth - 15) {
+      const edgeX = Math.max(30, Math.min(viewportWidth - 30, drawX));
+      const badgeY = Math.min(drawY - 30, 80);
+
+      ctx.save();
+      ctx.fillStyle = this.isPlayer ? '#2e7d32' : '#c62828';
+      ctx.beginPath();
+      ctx.arc(edgeX, badgeY, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(drawX < 15 ? '◄' : '►', edgeX, badgeY);
+      ctx.restore();
+    }
   }
 }
