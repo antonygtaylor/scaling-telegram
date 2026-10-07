@@ -36,6 +36,10 @@ class GameApp {
     this.wind = 0;
     this.aiTimeout = null;
 
+    // PWA Install & SW Registration State
+    this.deferredInstallPrompt = null;
+    this.swRegistration = null;
+
     // Power charging state
     this.isChargingPower = false;
     this.powerCharge = 10;
@@ -53,20 +57,114 @@ class GameApp {
     this.initCanvasScaling();
     this.bindUI();
     this.updateProgressBadge();
-    this.registerServiceWorker();
+    this.initPWA();
+    this.checkChangelogVersion();
 
     window.addEventListener('resize', () => this.initCanvasScaling());
     requestAnimationFrame((t) => this.gameLoop(t));
   }
 
-  registerServiceWorker() {
+  initPWA() {
+    // 1. Service Worker registration with update handling
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then((reg) => console.log('ServiceWorker registered with scope:', reg.scope))
+          .then((reg) => {
+            this.swRegistration = reg;
+            console.log('ServiceWorker registered:', reg.scope);
+
+            // Listen for waiting SW updates
+            if (reg.waiting) {
+              this.showUpdateBanner(reg.waiting);
+            }
+
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    this.showUpdateBanner(newWorker);
+                  }
+                });
+              }
+            });
+          })
           .catch((err) => console.warn('ServiceWorker registration failed:', err));
+
+        // Reload page when new SW takes control
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
       });
     }
+
+    // 2. Capture PWA Install Prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      this.deferredInstallPrompt = e;
+
+      // Show Install Banner & Manual Install Button in Menu
+      const banner = document.getElementById('pwa-install-banner');
+      const btnManual = document.getElementById('btn-manual-install');
+      if (banner) banner.classList.remove('hidden');
+      if (btnManual) btnManual.classList.remove('hidden');
+    });
+
+    // Handle App Installed Event
+    window.addEventListener('appinstalled', () => {
+      this.deferredInstallPrompt = null;
+      document.getElementById('pwa-install-banner')?.classList.add('hidden');
+      document.getElementById('btn-manual-install')?.classList.add('hidden');
+      console.log('PWA installed successfully');
+    });
+  }
+
+  /**
+   * Reads CHANGELOG.md dynamically to extract the latest version string and release notes.
+   * Updating CHANGELOG.md triggers automatic SW update & banner display.
+   */
+  async checkChangelogVersion() {
+    try {
+      const response = await fetch('./CHANGELOG.md?t=' + Date.now());
+      if (!response.ok) return;
+      const text = await response.text();
+
+      // Extract first header match like "## [1.0.0]"
+      const match = text.match(/##\s*\[([^\]]+)\]/);
+      if (match && match[1]) {
+        const latestVersion = match[1];
+        document.getElementById('version-display').innerText = `v${latestVersion}`;
+
+        const storedVersion = localStorage.getItem('rust_iron_version');
+        if (storedVersion && storedVersion !== latestVersion) {
+          console.log(`Version updated from ${storedVersion} to ${latestVersion}`);
+          if (this.swRegistration && this.swRegistration.active) {
+            this.swRegistration.update();
+          }
+        }
+        localStorage.setItem('rust_iron_version', latestVersion);
+      }
+    } catch (e) {
+      console.warn('Could not fetch CHANGELOG.md:', e);
+    }
+  }
+
+  showUpdateBanner(worker) {
+    const banner = document.getElementById('pwa-update-banner');
+    if (!banner) return;
+
+    banner.classList.remove('hidden');
+    document.getElementById('btn-pwa-reload').onclick = () => {
+      if (worker) {
+        worker.postMessage({ type: 'SKIP_WAITING' });
+      } else if (navigator.serviceWorker.controller) {
+        window.location.reload();
+      }
+    };
   }
 
   initCanvasScaling() {
@@ -80,6 +178,26 @@ class GameApp {
   }
 
   bindUI() {
+    // PWA Install Action
+    const triggerInstall = () => {
+      if (this.deferredInstallPrompt) {
+        this.deferredInstallPrompt.prompt();
+        this.deferredInstallPrompt.userChoice.then((choice) => {
+          if (choice.outcome === 'accepted') {
+            document.getElementById('pwa-install-banner')?.classList.add('hidden');
+            document.getElementById('btn-manual-install')?.classList.add('hidden');
+          }
+          this.deferredInstallPrompt = null;
+        });
+      }
+    };
+
+    document.getElementById('btn-pwa-install')?.addEventListener('click', triggerInstall);
+    document.getElementById('btn-manual-install')?.addEventListener('click', triggerInstall);
+    document.getElementById('btn-pwa-dismiss')?.addEventListener('click', () => {
+      document.getElementById('pwa-install-banner')?.classList.add('hidden');
+    });
+
     // Menu Buttons
     document.getElementById('btn-campaign-start').addEventListener('click', () => {
       this.showBriefing(this.maxUnlockedLevel);

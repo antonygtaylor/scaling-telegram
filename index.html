@@ -4,16 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#121212" />
-  <meta name="description" content="The Rust & Iron Wars - A tactical 100-level artillery PWA tank game." />
+  <meta name="description" content="The Rust & Iron Wars - A tactical 100-level artillery PWA tank game set in a dieselpunk alternate history." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Rust&Iron" />
   <title>The Rust & Iron Wars</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/svg+xml" href="public/icons/icon-192.svg" />
+  <link rel="apple-touch-icon" href="public/icons/icon-192.svg" />
   <link rel="stylesheet" href="src/styles/main.css" />
 </head>
 <body>
   <div id="app-container">
+    <!-- PWA Installation Banner -->
+    <div id="pwa-install-banner" class="pwa-banner hidden">
+      <div class="pwa-banner-content">
+        <span class="pwa-banner-title">⚙️ INSTALL APP</span>
+        <span class="pwa-banner-desc">Install The Rust & Iron Wars for offline tactical play!</span>
+      </div>
+      <div class="pwa-banner-actions">
+        <button id="btn-pwa-install" class="btn-primary btn-sm">INSTALL</button>
+        <button id="btn-pwa-dismiss" class="btn-secondary btn-sm" aria-label="Dismiss Install Prompt">✕</button>
+      </div>
+    </div>
+
+    <!-- PWA Auto-Update Banner -->
+    <div id="pwa-update-banner" class="pwa-banner hidden">
+      <div class="pwa-banner-content">
+        <span class="pwa-banner-title" id="update-version-tag">🚀 NEW UPDATE AVAILABLE</span>
+        <span class="pwa-banner-desc" id="update-notes-preview">A new version is ready to reload.</span>
+      </div>
+      <div class="pwa-banner-actions">
+        <button id="btn-pwa-reload" class="btn-primary btn-sm">UPDATE NOW</button>
+      </div>
+    </div>
+
     <!-- Game Canvas Layer -->
     <canvas id="game-canvas"></canvas>
 
@@ -88,10 +113,12 @@
         <div class="menu-box">
           <h1 class="game-title">THE RUST & IRON WARS</h1>
           <p class="game-subtitle">DIESELPUNK ARTILLERY CAMPAIGN</p>
+          <div id="version-display" class="version-badge">v1.0.0</div>
           <div class="menu-actions">
             <button id="btn-campaign-start" class="btn-primary">START CAMPAIGN</button>
             <button id="btn-level-select" class="btn-secondary">SELECT SECTOR</button>
             <button id="btn-audio-toggle" class="btn-secondary">SOUND: ON</button>
+            <button id="btn-manual-install" class="btn-secondary hidden">INSTALL APP</button>
           </div>
           <div id="campaign-progress-badge" class="progress-info">
             PROGRESS: SECTOR <span id="text-unlocked-sector">1</span> / 100
