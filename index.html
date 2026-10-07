@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#121212" />
+  <meta name="description" content="The Rust & Iron Wars - A tactical 100-level artillery PWA tank game set in a dieselpunk alternate history." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Rust&Iron" />
+  <title>The Rust & Iron Wars</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="public/icons/icon-192.svg" />
+  <link rel="apple-touch-icon" href="public/icons/icon-192.svg" />
+  <link rel="stylesheet" href="src/styles/main.css" />
+  <script src="src/index.js" type="module" defer></script>
+</head>
+<body>
+  <div id="app-container">
+    <!-- PWA Installation Banner -->
+    <div id="pwa-install-banner" class="pwa-banner hidden">
+      <div class="pwa-banner-content">
+        <span class="pwa-banner-title">⚙️ INSTALL APP</span>
+        <span class="pwa-banner-desc">Install The Rust & Iron Wars for offline tactical play!</span>
+      </div>
+      <div class="pwa-banner-actions">
+        <button id="btn-pwa-install" class="btn-primary btn-sm">INSTALL</button>
+        <button id="btn-pwa-dismiss" class="btn-secondary btn-sm" aria-label="Dismiss Install Prompt">✕</button>
+      </div>
+    </div>
+
+    <!-- PWA Auto-Update Banner -->
+    <div id="pwa-update-banner" class="pwa-banner hidden">
+      <div class="pwa-banner-content">
+        <span class="pwa-banner-title" id="update-version-tag">🚀 NEW UPDATE AVAILABLE</span>
+        <span class="pwa-banner-desc" id="update-notes-preview">A new version is ready to reload.</span>
+      </div>
+      <div class="pwa-banner-actions">
+        <button id="btn-pwa-reload" class="btn-primary btn-sm">UPDATE NOW</button>
+      </div>
+    </div>
+
+    <!-- Game Canvas Layer -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Overlay UI Layer -->
+    <div id="ui-overlay">
+      <!-- Top HUD Header -->
+      <header id="hud-top" class="hud-bar hidden">
+        <div class="hud-group">
+          <span class="hud-label">SECTOR</span>
+          <span id="hud-sector-title" class="hud-value">001</span>
+        </div>
+        <div class="hud-group">
+          <span class="hud-label">TURN</span>
+          <span id="hud-turn-indicator" class="hud-value badge-player">PLAYER</span>
+        </div>
+        <div class="hud-group">
+          <span class="hud-label">WIND</span>
+          <div id="hud-wind-container">
+            <span id="hud-wind-arrow">➔</span>
+            <span id="hud-wind-speed" class="hud-value">0</span>
+          </div>
+        </div>
+        <div class="hud-group">
+          <span class="hud-label">SCORE</span>
+          <span id="hud-score" class="hud-value">0</span>
+        </div>
+        <button id="btn-pause" class="btn-icon" aria-label="Pause Menu">⏸</button>
+      </header>
+
+      <!-- Bottom HUD Control Panel -->
+      <footer id="hud-bottom" class="hud-bar hidden">
+        <!-- Tank Quick Stats -->
+        <div id="hud-tank-stats" class="hud-card">
+          <div class="stat-row">
+            <span class="stat-label">HP:</span>
+            <div class="hp-bar-container">
+              <div id="hud-hp-bar" class="hp-bar-fill" style="width: 100%;"></div>
+            </div>
+            <span id="hud-hp-text" class="stat-val">100/100</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">ANGLE:</span>
+            <span id="hud-angle-val" class="stat-val highlight">45°</span>
+            <span class="stat-label">POWER:</span>
+            <span id="hud-power-val" class="stat-val highlight">50%</span>
+          </div>
+        </div>
+
+        <!-- Touch Controls -->
+        <div id="hud-controls-container">
+          <!-- Fine Angle Adjustment Buttons -->
+          <div class="control-cluster">
+            <button id="btn-angle-down" class="btn-ctrl" aria-label="Angle Down">◀</button>
+            <div class="ctrl-label">ANGLE</div>
+            <button id="btn-angle-up" class="btn-ctrl" aria-label="Angle Up">▶</button>
+          </div>
+
+          <!-- Hold-to-Charge Fire Button -->
+          <div class="fire-cluster">
+            <div id="power-meter-wrapper">
+              <div id="power-meter-bar"></div>
+            </div>
+            <button id="btn-fire" class="btn-fire">
+              <span>HOLD TO FIRE</span>
+            </button>
+          </div>
+        </div>
+      </footer>
+
+      <!-- Main Menu Screen -->
+      <section id="screen-main-menu" class="screen active">
+        <div class="menu-box">
+          <h1 class="game-title">THE RUST & IRON WARS</h1>
+          <p class="game-subtitle">DIESELPUNK ARTILLERY CAMPAIGN</p>
+          <div id="version-display" class="version-badge">v1.0.0</div>
+          <div class="menu-actions">
+            <button id="btn-campaign-start" class="btn-primary">START CAMPAIGN</button>
+            <button id="btn-level-select" class="btn-secondary">SELECT SECTOR</button>
+            <button id="btn-audio-toggle" class="btn-secondary">SOUND: ON</button>
+            <button id="btn-manual-install" class="btn-secondary hidden">INSTALL APP</button>
+          </div>
+          <div id="campaign-progress-badge" class="progress-info">
+            PROGRESS: SECTOR <span id="text-unlocked-sector">1</span> / 100
+          </div>
+        </div>
+      </section>
+
+      <!-- Sector Select Modal / Screen -->
+      <section id="screen-sector-select" class="screen hidden">
+        <div class="menu-box modal-box">
+          <h2>THEATER SECTOR SELECT</h2>
+          <div id="sector-grid" class="sector-grid"></div>
+          <button id="btn-back-menu" class="btn-secondary">BACK TO MENU</button>
+        </div>
+      </section>
+
+      <!-- Narrative Briefing Modal -->
+      <section id="modal-briefing" class="screen hidden">
+        <div class="menu-box modal-box briefing-box">
+          <div class="theater-badge" id="briefing-theater-name">ASHTON DUNES</div>
+          <h2 id="briefing-title">SECTOR 001 BRIEFING</h2>
+          <div class="briefing-text-container">
+            <p id="briefing-lore"></p>
+            <div class="briefing-intel">
+              <p><strong>ENEMY FORCES:</strong> <span id="briefing-enemies-count">2</span> Competitor Tanks</p>
+              <p><strong>INTEL TIER:</strong> <span id="briefing-ai-tier">Rookie AI</span></p>
+              <p><strong>TARGET:</strong> Eliminate all hostile artillery units.</p>
+            </div>
+          </div>
+          <button id="btn-launch-sector" class="btn-primary pulse">DEPLOY TO BATTLEFIELD</button>
+        </div>
+      </section>
+
+      <!-- Sector Outro / Scoring Screen -->
+      <section id="modal-outro" class="screen hidden">
+        <div class="menu-box modal-box outro-box">
+          <h2 id="outro-status-title">SECTOR CLEARED</h2>
+          <div class="grade-badge" id="outro-grade">S</div>
+          <div class="outro-stats">
+            <div class="stat-item">
+              <span>Base Score:</span>
+              <strong id="outro-base-score">0</strong>
+            </div>
+            <div class="stat-item">
+              <span>Shots Fired / Hits:</span>
+              <strong id="outro-shots-hits">0 / 0</strong>
+            </div>
+            <div class="stat-item">
+              <span>Accuracy Rating:</span>
+              <strong id="outro-accuracy">0%</strong>
+            </div>
+            <div class="stat-item">
+              <span>Environmental Kills:</span>
+              <strong id="outro-env-kills">0</strong>
+            </div>
+            <div class="stat-item highlight-row">
+              <span>TOTAL SCORE:</span>
+              <strong id="outro-total-score">0</strong>
+            </div>
+          </div>
+          <div class="outro-actions">
+            <button id="btn-retry-sector" class="btn-secondary">RETRY</button>
+            <button id="btn-next-sector" class="btn-primary">NEXT SECTOR ▶</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pause Menu -->
+      <section id="modal-pause" class="screen hidden">
+        <div class="menu-box modal-box">
+          <h2>BATTLEFIELD PAUSED</h2>
+          <div class="menu-actions">
+            <button id="btn-resume" class="btn-primary">RESUME</button>
+            <button id="btn-restart-sector" class="btn-secondary">RESTART SECTOR</button>
+            <button id="btn-quit-main" class="btn-danger">ABANDON SECTOR</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

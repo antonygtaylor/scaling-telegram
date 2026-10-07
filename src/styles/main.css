@@ -1,0 +1,506 @@
+/* PWA Install & Update Banners */
+.pwa-banner {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(30, 30, 30, 0.95);
+  border: 2px solid #ff9800;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  padding: 10px 18px;
+  border-radius: 8px;
+  max-width: 90vw;
+  width: 500px;
+  pointer-events: auto;
+}
+
+.pwa-banner-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  text-align: left;
+}
+
+.pwa-banner-title {
+  font-weight: bold;
+  color: #f5a623;
+  letter-spacing: 0.5px;
+}
+
+.pwa-banner-desc {
+  color: #ccc;
+}
+
+.pwa-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.version-badge {
+  font-size: 11px;
+  color: #888;
+  background: #121212;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #333;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #121212;
+  font-family: 'Courier New', Courier, monospace, system-ui, -apple-system;
+  color: #e0e0e0;
+}
+
+#app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #0d0d0d;
+}
+
+#game-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: block;
+}
+
+#ui-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Enable pointer events for interactable HUD elements */
+.hud-bar, .screen, .modal-box {
+  pointer-events: auto;
+}
+
+/* HUD Top Header */
+.hud-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: rgba(18, 18, 18, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 2px solid #333;
+}
+
+#hud-bottom {
+  border-bottom: none;
+  border-top: 2px solid #333;
+  padding: 8px 16px;
+}
+
+.hud-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hud-label {
+  font-size: 10px;
+  color: #aaa;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+.hud-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #f5a623;
+}
+
+.badge-player {
+  color: #4caf50;
+}
+
+.badge-ai {
+  color: #ef5350;
+}
+
+/* HUD Bottom Section */
+#hud-tank-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(30, 30, 30, 0.9);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  min-width: 180px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.stat-label {
+  color: #bbb;
+  font-weight: bold;
+}
+
+.stat-val {
+  color: #fff;
+  font-weight: bold;
+}
+
+.stat-val.highlight {
+  color: #4fc3f7;
+}
+
+.hp-bar-container {
+  flex-grow: 1;
+  height: 10px;
+  background-color: #222;
+  border: 1px solid #555;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f44336, #4caf50);
+  transition: width 0.3s ease;
+}
+
+#hud-controls-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.control-cluster {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(30, 30, 30, 0.9);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #444;
+}
+
+.ctrl-label {
+  font-size: 10px;
+  font-weight: bold;
+  color: #aaa;
+}
+
+/* Fire Button & Power Meter */
+.fire-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+#power-meter-wrapper {
+  width: 120px;
+  height: 12px;
+  background: #222;
+  border: 1px solid #555;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+#power-meter-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #ffeb3b, #ff5722);
+  transition: width 0.05s linear;
+}
+
+.btn-fire {
+  background: linear-gradient(180deg, #e53935, #b71c1c);
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 10px 24px;
+  border: 2px solid #ff7961;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.btn-fire:active {
+  transform: scale(0.96);
+  background: linear-gradient(180deg, #c62828, #8e0000);
+}
+
+.btn-ctrl, .btn-icon {
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-ctrl:active, .btn-icon:active {
+  background: #555;
+}
+
+/* UI Screens & Modals */
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(6px);
+  transition: opacity 0.3s ease;
+  z-index: 20;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.menu-box {
+  background: #1e1e1e;
+  border: 2px solid #555;
+  box-shadow: 0 0 20px rgba(0,0,0,0.8);
+  padding: 24px 32px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.game-title {
+  font-size: 28px;
+  letter-spacing: 3px;
+  color: #f5a623;
+  text-shadow: 2px 2px 4px #000;
+}
+
+.game-subtitle {
+  font-size: 12px;
+  color: #ccc;
+  letter-spacing: 2px;
+}
+
+.menu-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 260px;
+}
+
+.btn-primary, .btn-secondary, .btn-danger {
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.2s;
+}
+
+.btn-primary {
+  background: #2e7d32;
+  color: #ffffff;
+}
+
+.btn-primary:active {
+  background: #1b5e20;
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: #424242;
+  color: #ffffff;
+  border: 1px solid #777;
+}
+
+.btn-secondary:active {
+  background: #616161;
+}
+
+.btn-danger {
+  background: #c62828;
+  color: #ffffff;
+}
+
+.progress-info {
+  font-size: 12px;
+  color: #aaa;
+}
+
+/* Sector Grid */
+.sector-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 8px;
+  background: #121212;
+  border: 1px solid #333;
+  border-radius: 6px;
+}
+
+.sector-btn {
+  aspect-ratio: 1;
+  background: #2a2a2a;
+  color: #aaa;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.sector-btn.unlocked {
+  background: #33691e;
+  color: #fff;
+  border-color: #689f38;
+}
+
+.sector-btn.completed {
+  background: #1b5e20;
+  border-color: #4caf50;
+}
+
+/* Briefing & Outro */
+.briefing-box {
+  max-width: 500px;
+  text-align: left;
+}
+
+.theater-badge {
+  background: #e65100;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.briefing-text-container {
+  background: #121212;
+  padding: 12px;
+  border-left: 3px solid #ff6f00;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.briefing-intel {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #333;
+  font-size: 12px;
+  color: #ccc;
+}
+
+.outro-box {
+  min-width: 300px;
+}
+
+.grade-badge {
+  font-size: 48px;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.outro-stats {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #121212;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.highlight-row {
+  border-top: 1px solid #444;
+  padding-top: 6px;
+  font-size: 15px;
+  color: #4fc3f7;
+}
+
+.outro-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.outro-actions button {
+  flex: 1;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+.pulse {
+  animation: pulse 2s infinite ease-in-out;
+}
